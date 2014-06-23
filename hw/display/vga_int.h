@@ -47,6 +47,8 @@
 #define VBE_DISPI_INDEX_Y_OFFSET        0x9
 #define VBE_DISPI_INDEX_NB              0xa /* size of vbe_regs[] */
 #define VBE_DISPI_INDEX_VIDEO_MEMORY_64K 0xa /* read-only, not in vbe_regs */
+#define VBE_DISPI_INDEX_EXTENDED_CAPS   0xb /* read-only, not in vbe_regs */
+#define VBE_DISPI_INDEX_ENDIAN_CTRL     0xc /* not in vbe_regs */
 
 #define VBE_DISPI_ID0                   0xB0C0
 #define VBE_DISPI_ID1                   0xB0C1
@@ -55,12 +57,21 @@
 #define VBE_DISPI_ID4                   0xB0C4
 #define VBE_DISPI_ID5                   0xB0C5
 
+/* VBE_DISPI_INDEX_ENABLE fields */
 #define VBE_DISPI_DISABLED              0x00
 #define VBE_DISPI_ENABLED               0x01
 #define VBE_DISPI_GETCAPS               0x02
+#define VBE_DISPI_EXTCAPS               0x10 /* RO: set when 0xb present */
 #define VBE_DISPI_8BIT_DAC              0x20
 #define VBE_DISPI_LFB_ENABLED           0x40
 #define VBE_DISPI_NOCLEARMEM            0x80
+
+/* VBE_DISPI_INDEX_EXTENDED_CAPS fields */
+#define VBE_DISPI_HAS_ENDIAN_CTRL	0x01 /* RO: has endian control reg */
+
+/* VBE_DISPI_INDEX_ENDIAN_CTRL */
+#define VBE_DISPI_LITTLE_ENDIAN		0x00
+#define VBE_DISPI_BIG_ENDIAN		0x01
 
 #define VBE_DISPI_LFB_PHYSICAL_ADDRESS  0xE0000000
 
@@ -148,6 +159,7 @@ typedef struct VGACommonState {
     uint32_t last_width, last_height; /* in chars or pixels */
     uint32_t last_scr_width, last_scr_height; /* in pixels */
     uint32_t last_depth; /* in bits */
+    bool last_byteswap;
     uint8_t cursor_start, cursor_end;
     bool cursor_visible_phase;
     int64_t cursor_blink_time;
@@ -155,7 +167,8 @@ typedef struct VGACommonState {
     const GraphicHwOps *hw_ops;
     bool full_update_text;
     bool full_update_gfx;
-    bool big_endian_fb;
+    uint8_t big_endian_fb;
+    uint8_t default_endian_fb;
     /* hardware mouse cursor support */
     uint32_t invalidated_y_table[VGA_MAX_HEIGHT / 32];
     void (*cursor_invalidate)(struct VGACommonState *s);
