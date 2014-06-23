@@ -376,6 +376,7 @@ PCIDevice *pci_nic_init_nofail(NICInfo *nd, PCIBus *rootbus,
                                const char *default_devaddr);
 
 PCIDevice *pci_vga_init(PCIBus *bus);
+void pci_vga_switch_fb_endian(DeviceState *dev, bool big_endian);
 
 int pci_bus_num(PCIBus *s);
 void pci_for_each_device(PCIBus *bus, int bus_num,

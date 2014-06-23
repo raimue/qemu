@@ -961,3 +961,29 @@ static void spapr_pci_register_types(void)
 }
 
 type_init(spapr_pci_register_types)
+
+static int spapr_switch_one_vga(DeviceState *dev, void *opaque)
+{
+    bool be = *(bool *)opaque;
+
+    if (!strcmp(object_get_typename(OBJECT(dev)), "VGA")) {
+        pci_vga_switch_fb_endian(dev, be);
+    }
+    return 0;
+}
+
+void spapr_pci_switch_vga(bool big_endian)
+{
+    sPAPRPHBState *sphb;
+
+    /*
+     * For backward compatibility with existing guests, we switch
+     * the endianness of the VGA controller when changing the guest
+     * interrupt mode
+     */
+    QLIST_FOREACH(sphb, &spapr->phbs, list) {
+        BusState *bus = &PCI_HOST_BRIDGE(sphb)->bus->qbus;
+        qbus_walk_children(bus, spapr_switch_one_vga, NULL, NULL, NULL,
+                           &big_endian);
+    }
+}

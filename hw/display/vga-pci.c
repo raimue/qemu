@@ -212,6 +212,14 @@ static void pci_secondary_vga_reset(DeviceState *dev)
     vga_common_reset(&d->vga);
 }
 
+void pci_vga_switch_fb_endian(DeviceState *dev, bool big_endian)
+{
+    PCIVGAState *d = DO_UPCAST(PCIVGAState, dev.qdev, dev);
+    VGACommonState *s = &d->vga;
+
+    s->big_endian_fb = big_endian;
+}
+
 static Property vga_pci_properties[] = {
     DEFINE_PROP_UINT32("vgamem_mb", PCIVGAState, vga.vram_size_mb, 16),
     DEFINE_PROP_BIT("mmio", PCIVGAState, flags, PCI_VGA_FLAG_ENABLE_MMIO, true),
