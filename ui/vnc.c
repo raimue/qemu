@@ -619,6 +619,21 @@ static void vnc_dpy_switch(DisplayChangeListener *dcl,
     }
 }
 
+static bool vnc_dpy_check_format(DisplayChangeListener *dcl,
+                                 pixman_format_code_t format)
+{
+    /* We let pixman convert for us as many formats as possible,
+     * since not all pixman implementations support all formats
+     * howevever, I only listed the one I was able to test
+     */
+    return format == PIXMAN_x8r8g8b8 ||
+           format == PIXMAN_x1r5g5b5 ||
+           format == PIXMAN_r5g6b5 ||
+           format == PIXMAN_r8g8b8 ||
+           format == PIXMAN_b8g8r8 ||
+           format == PIXMAN_b8g8r8a8;
+}
+
 /* fastest code */
 static void vnc_write_pixels_copy(VncState *vs,
                                   void *pixels, int size)
@@ -2928,13 +2943,14 @@ static void vnc_listen_websocket_read(void *opaque)
 #endif /* CONFIG_VNC_WS */
 
 static const DisplayChangeListenerOps dcl_ops = {
-    .dpy_name          = "vnc",
-    .dpy_refresh       = vnc_refresh,
-    .dpy_gfx_copy      = vnc_dpy_copy,
-    .dpy_gfx_update    = vnc_dpy_update,
-    .dpy_gfx_switch    = vnc_dpy_switch,
-    .dpy_mouse_set     = vnc_mouse_set,
-    .dpy_cursor_define = vnc_dpy_cursor_define,
+    .dpy_name             = "vnc",
+    .dpy_refresh          = vnc_refresh,
+    .dpy_gfx_copy         = vnc_dpy_copy,
+    .dpy_gfx_update       = vnc_dpy_update,
+    .dpy_gfx_switch       = vnc_dpy_switch,
+    .dpy_gfx_check_format = vnc_dpy_check_format,
+    .dpy_mouse_set        = vnc_mouse_set,
+    .dpy_cursor_define    = vnc_dpy_cursor_define,
 };
 
 void vnc_display_init(DisplayState *ds)
