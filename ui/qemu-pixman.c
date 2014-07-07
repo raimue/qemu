@@ -9,8 +9,9 @@
 PixelFormat qemu_pixelformat_from_pixman(pixman_format_code_t format)
 {
     PixelFormat pf;
+    uint8_t bpp;
 
-    pf.bits_per_pixel = PIXMAN_FORMAT_BPP(format);
+    bpp = pf.bits_per_pixel = PIXMAN_FORMAT_BPP(format);
     pf.bytes_per_pixel = PIXMAN_FORMAT_BPP(format) / 8;
     pf.depth = PIXMAN_FORMAT_DEPTH(format);
 
@@ -33,15 +34,15 @@ PixelFormat qemu_pixelformat_from_pixman(pixman_format_code_t format)
         pf.rshift = 0;
         break;
     case PIXMAN_TYPE_BGRA:
-        pf.bshift = pf.abits + pf.rbits + pf.gbits;
-        pf.gshift = pf.abits + pf.rbits;
-        pf.rshift = pf.abits;
+	pf.bshift = bpp - pf.bbits;
+        pf.gshift = bpp - (pf.bbits + pf.gbits);
+        pf.rshift = bpp - (pf.bbits + pf.gbits + pf.rbits);
         pf.ashift = 0;
         break;
     case PIXMAN_TYPE_RGBA:
-        pf.rshift = pf.abits + pf.bbits + pf.gbits;
-        pf.gshift = pf.abits + pf.bbits;
-        pf.bshift = pf.abits;
+        pf.rshift = bpp - pf.rbits;
+        pf.gshift = bpp - (pf.rbits + pf.gbits);
+        pf.bshift = bpp - (pf.rbits + pf.gbits + pf.bbits);
         pf.ashift = 0;
         break;
     default:
