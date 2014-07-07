@@ -611,6 +611,21 @@ static void gd_switch(DisplayChangeListener *dcl,
     }
 }
 
+static bool gd_check_format(DisplayChangeListener *dcl,
+                            pixman_format_code_t format)
+{
+    /* We let pixman convert for us as many formats as possible,
+     * since not all pixman implementations support all formats
+     * howevever, I only listed the one I was able to test
+     */
+    return format == PIXMAN_x8r8g8b8 ||
+           format == PIXMAN_x1r5g5b5 ||
+           format == PIXMAN_r5g6b5 ||
+           format == PIXMAN_r8g8b8 ||
+           format == PIXMAN_b8g8r8 ||
+           format == PIXMAN_b8g8r8a8;
+}
+
 /** QEMU Events **/
 
 static void gd_change_runstate(void *opaque, int running, RunState state)
@@ -1626,12 +1641,13 @@ static GtkWidget *gd_create_menu_machine(GtkDisplayState *s, GtkAccelGroup *acce
 }
 
 static const DisplayChangeListenerOps dcl_ops = {
-    .dpy_name          = "gtk",
-    .dpy_gfx_update    = gd_update,
-    .dpy_gfx_switch    = gd_switch,
-    .dpy_refresh       = gd_refresh,
-    .dpy_mouse_set     = gd_mouse_set,
-    .dpy_cursor_define = gd_cursor_define,
+    .dpy_name             = "gtk",
+    .dpy_gfx_update       = gd_update,
+    .dpy_gfx_switch       = gd_switch,
+    .dpy_gfx_check_format = gd_check_format,
+    .dpy_refresh          = gd_refresh,
+    .dpy_mouse_set        = gd_mouse_set,
+    .dpy_cursor_define    = gd_cursor_define,
 };
 
 static GSList *gd_vc_gfx_init(GtkDisplayState *s, VirtualConsole *vc,
