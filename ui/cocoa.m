@@ -1103,6 +1103,16 @@ static void cocoa_refresh(DisplayChangeListener *dcl)
     [pool release];
 }
 
+static bool cocoa_check_format(DisplayChangeListener *dcl,
+                               pixman_format_code_t format)
+{
+    /* The only supported format is kCGImageAlphaNoneSkipFirst,
+     * for 32 and 16 bit
+     */
+    return format == PIXMAN_x8r8g8b8 ||
+           format == PIXMAN_x1r5g5b5;
+}
+
 static void cocoa_cleanup(void)
 {
     COCOA_DEBUG("qemu_cocoa: cocoa_cleanup\n");
@@ -1113,6 +1123,7 @@ static const DisplayChangeListenerOps dcl_ops = {
     .dpy_name          = "cocoa",
     .dpy_gfx_update = cocoa_update,
     .dpy_gfx_switch = cocoa_switch,
+    .dpy_gfx_check_format = cocoa_check_format,
     .dpy_refresh = cocoa_refresh,
 };
 
